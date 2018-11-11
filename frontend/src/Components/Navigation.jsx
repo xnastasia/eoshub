@@ -6,7 +6,7 @@ import Image from "../img/logo.png";
 class Navigation extends Component {
   render() {
     return (
-      <div class="navigation">
+      <div class="navigation" style={{paddingLeft: '20px'}}>
         <Link to="/">
           <img src={Image} />
         </Link>
