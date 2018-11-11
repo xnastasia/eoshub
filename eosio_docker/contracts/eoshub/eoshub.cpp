@@ -36,7 +36,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
   public:
     using contract::contract;
 
-
+    // regservice registers an eosaccount service listing (metadata about the service etc)
     [[eosio::action]] void regservice(name owner, std::string description, std::string url) {
 
     }
