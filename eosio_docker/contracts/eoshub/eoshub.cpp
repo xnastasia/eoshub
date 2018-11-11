@@ -3,33 +3,35 @@
 
 using namespace eosio;
 
-// inflation_rate
-// how much do we inflate the base supply to pay for services?
-// uint64_t inflation_rate = 1;
+
 const symbol hub_symbol = symbol("HUB", 4);
 const name hub_name = name("eoshub");
 
 struct [[eosio::table]] service {
-    uint64_t key;
-    // who registered this service?
     name owner;
 
     std::string name;
     std::string description;
     std::string url;
 
-    auto primary_key() { return key; }
+    auto primary_key() { return owner.value; }
 };
+
+typedef eosio::multi_index<name("services"), service> services_index;
 
 struct [[eosio::table]] account {
     name owner;
 
     asset balance;
-    asset stakedBalance;
-    asset registeredBalance;
+    asset staked_balance;
+    asset registered_balance;
 
-    uint64_t lastCollectedBlock;
+    uint64_t last_collected_block;
+
+    auto primary_key() { return owner.value; }
 };
+
+typedef eosio::multi_index<name("accounts"), account> accounts_index;
 
 
 class [[eosio::contract]] eoshub : public eosio::contract {
@@ -39,13 +41,22 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
     // regservice registers an eosaccount service listing (metadata about the service etc)
     [[eosio::action]] void regservice(name owner, std::string description, std::string url) {
+        require_auth(owner);
 
-
+        services_index services(_self, _code.value);
+        services.emplace(owner, [&]( auto& svc ) {
+            svc.owner = owner;
+            svc.description = description;
+            svc.url = url;
+        });
     }
 
     // stake stakes a balance in eoshub allowing it to be used for api services
-    [[eosio::action]] void stake() {
+    [[eosio::action]] void stake(name owner, asset stakeAmount) {
+        require_auth(owner);
 
+        auto itr = accounts_index.find(owner.value);
+        
     }
 
     // unstake unstakes balances allowing them to be withdrawn from the contract
