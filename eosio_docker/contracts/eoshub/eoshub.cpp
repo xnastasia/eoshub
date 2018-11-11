@@ -13,7 +13,7 @@ struct [[eosio::table]] service {
     std::string description;
     std::string url;
 
-    auto primary_key() { return owner.value; }
+    auto primary_key() const { return owner.value; }
 };
 
 typedef eosio::multi_index<name("services"), service> services_index;
@@ -26,7 +26,7 @@ struct [[eosio::table]] account {
 
     uint64_t last_collection_time;
 
-    auto primary_key() { return owner.value; }
+    auto primary_key() const { return owner.value; }
 };
 
 typedef eosio::multi_index<name("accounts"), account> accounts_index;
@@ -121,7 +121,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
         // This account does exist, lets add its balance to our records
         eosio_assert(itr != accounts.end(), "account doesn't exist");
         accounts.modify(itr, from, [&](auto &a){
-            a.balance += quantity
+            a.balance += quantity;
         });
     }
 };
