@@ -114,8 +114,8 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
     }
 
-    // depositinf notification _from_ the eoshub.token contract
-    [[eosio::action]] void depositinf( name from, name to, asset quantity, std::string memo ) {
+    // handledeposit notification _from_ the eoshub.token contract
+    [[eosio::action]] void handledeposit( name from, name to, asset quantity, std::string memo ) {
         if(from == _self || to != _self)
             return;
 
@@ -158,7 +158,7 @@ extern "C" {
             }
         }
         else if(code==name("eosio.token").value && action==name("transfer").value) {
-            execute_action( name(receiver), name(code), &eoshub::depositinf );
+            execute_action( name(receiver), name(code), &eoshub::handledeposit );
         }
     }
 };
