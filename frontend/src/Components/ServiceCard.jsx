@@ -57,8 +57,8 @@ class services extends Component {
               handle={this.handle}
             />
           </div>
-          <a id="elastic" class="btn btn-primary">
-            Stack {parseFloat(this.state.requests * 0.000001).toFixed(4)} EOSHub tokens
+          <a id="elastic" class="btn btn-primary" style={{color: 'white'}}>
+            Stake {parseFloat(this.state.requests * 0.000001).toFixed(4)} EOSHUB tokens
           </a>
         </div>
       </div>
