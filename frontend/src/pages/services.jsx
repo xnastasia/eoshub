@@ -18,14 +18,14 @@ class services extends Component {
       <div>
         <Navigation />
         <h1>Select which service to use:</h1>
-        <ServiceCard img={img} title={"Elastic dApp"} desc={"dApp leveraging Elastic Search to provide a seach engine for decentralized applications"}></ServiceCard>
-        <ServiceCard img={security2} title={"Security dApp"} desc={"provides a layer of security to verify tokens are valid"}></ServiceCard>
-        <ServiceCard img={analy} title={"Analytics dApp"} desc={"Analytics for your dApp"}></ServiceCard>
-        <ServiceCard img={chat} title={"Chat dApp"} desc={"dApp leveraging Elastic Search to provide a seach engine for decentralized applications"}></ServiceCard>
-        <ServiceCard img={security} title={"Best Shield dApp"} desc={"Best security for dApp interaction"}></ServiceCard>
-        <ServiceCard img={db} title={"SQL on EOS"} desc={"SQL for your dApp"}></ServiceCard>
-        <ServiceCard img={img} title={"Elastic 2.0 dApp"} desc={"Elastic Search 2.0 to provide a seach engine for decentralized applications"}></ServiceCard>
-        <ServiceCard img={chat2} title={"Chat dApp"} desc={"provides a layer of security to verify tokens are valid"}></ServiceCard>
+        <ServiceCard img={img} title={"Elastic API"} desc={"API leveraging Elastic Search to provide a seach engine for decentralized applications"}></ServiceCard>
+        <ServiceCard img={security2} title={"Security API"} desc={"provides a layer of security to verify tokens are valid"}></ServiceCard>
+        <ServiceCard img={analy} title={"Analytics API"} desc={"Analytics for your API"}></ServiceCard>
+        <ServiceCard img={chat} title={"Chat API"} desc={"API leveraging Elastic Search to provide a seach engine for decentralized applications"}></ServiceCard>
+        <ServiceCard img={security} title={"Best Shield API"} desc={"Best security for API interaction"}></ServiceCard>
+        <ServiceCard img={db} title={"SQL on EOS"} desc={"SQL for your API"}></ServiceCard>
+        <ServiceCard img={img} title={"Elastic 2.0 API"} desc={"Elastic Search 2.0 to provide a seach engine for decentralized applications"}></ServiceCard>
+        <ServiceCard img={chat2} title={"Chat API"} desc={"provides a layer of security to verify tokens are valid"}></ServiceCard>
       </div>
     );
   }
