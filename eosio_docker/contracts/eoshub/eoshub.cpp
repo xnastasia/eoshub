@@ -1,13 +1,18 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 
-using namespace eosio;
+#include "../eosio.token/eosio.token.hpp"
 
+using namespace eosio;
 
 const symbol hub_symbol = symbol("EOSHUB", 4);
 const name hub_name = name("eoshub");
 
-
+// for v1 we're using this basic calculation, but it is incorrect
+const float inflation_rate_per_year = .2f;
+const float seconds_per_year = 31557600;
+// this should be based on a compounding interest formula to figure out the spot inflation
+const float inflation_rate_per_second = inflation_rate_per_year * seconds_per_year;
 
 class [[eosio::contract]] eoshub : public eosio::contract {
     private:            
@@ -22,15 +27,25 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     };
     typedef eosio::multi_index<name("services"), service> services_index;
 
+
+    struct registration {
+        uint64_t serviceKey;
+        std::string apiKey;        
+    };
+
     struct [[eosio::table("accounts")]] account {
         name owner;
 
         asset balance;
         asset staked_balance;
 
+        asset delegated_balance;
+
         uint64_t last_collection_time;
 
         auto primary_key() const { return owner.value; }
+
+        float total_stake() const { return  staked_balance.amount + delegated_balance.amount; } 
     };
     typedef eosio::multi_index<name("accounts"), account> accounts_index;
 
@@ -94,6 +109,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     // regapikey stakes a certain amount of eoshub with the service tied to an EOS public key
     [[eosio::action]] void regapikey(std::string key, asset delegateAmount, name service) {
 
+
     }
 
     // unregapikey unstakes an amount of eoshub with the service
@@ -102,7 +118,38 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     }
 
     // collectreward collects earnings from shares since account.lastCollectedBlock
-    [[eosio::action]] void collectreward(name user) { 
+    [[eosio::action]] void collectreward(name user) {
+        require_auth(user);
+        accounts_index accounts(_self,  _self.value);
+
+        auto itr = accounts.find(user.value);
+        eosio_assert(itr != accounts.end(), "account not found");
+
+        auto hub_token_supply = token::get_supply(name("eosio.token"), hub_symbol.code());
+        float earningRatio = itr->total_stake() / float(hub_token_supply.amount);
+        auto earningPeriod = now() - itr->last_collection_time; //number of seconds since last collection
+        auto totalEarningsThisPeriod = (hub_token_supply.amount * inflation_rate_per_second) * earningPeriod;
+
+        auto sharesEarned = totalEarningsThisPeriod * earningRatio;
+
+        print("supply: ", hub_token_supply.amount, "\n");
+        print("totalStake: ", itr->total_stake(), "\n");
+        print("earningRatio: ", earningRatio, "\n");
+        print("earningPeriod: ", earningPeriod,"\n");
+        print("totalEarningsThisPeriod: ", totalEarningsThisPeriod,"\n");
+        print("sharesEarned: ", sharesEarned,"\n");
+
+        eosio_assert(sharesEarned > 0, "no shares earned");
+
+        auto assetEarned = asset(sharesEarned * 1000, hub_symbol);
+
+        // issue shares w/ inline action
+        action{
+            permission_level{_self, name("active")},
+            name("eosio.token"),
+            name("issue"),
+            std::tuple<name, asset, std::string>{user, assetEarned, "collect rewards " + std::to_string(now())}
+        }.send();
 
     }
 
@@ -135,7 +182,6 @@ class [[eosio::contract]] eoshub : public eosio::contract {
         accounts.modify(itr, to, [&](auto &a) {
             a.balance -= withdrawlAmount;
         });
-
     }
 
     // deposithub notification _from_ the eoshub.token contract
@@ -156,6 +202,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
                 a.owner = from;
                 a.balance = quantity;
                 a.staked_balance = asset(0, hub_symbol);
+                a.delegated_balance = asset(0, hub_symbol);
                 a.last_collection_time = now();
             });
             return;
