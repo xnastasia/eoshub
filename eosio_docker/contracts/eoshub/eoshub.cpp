@@ -5,6 +5,7 @@ using namespace eosio;
 
 
 const symbol hub_symbol = symbol("EOSHUB", 4);
+const name hub_name = name("eoshub");
 
 struct [[eosio::table]] service {
     name owner;
@@ -82,16 +83,34 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     }
 
     // withdraw withdraws an amount of eoshub (from the unstaked balance) to a given account
-    [[eosio::action]] void withdraw(name from, asset withdrawlAmount) { 
-        require_auth(from);
+    // cleos set account permission eoshub active '{"threshold": 1,"keys": [{"key": "ACTIVE PUBKEY","weight": 1}],"accounts": [{"permission":{"actor":"eoshub","permission":"eosio.code"},"weight":1}]}' owner -p eoshub@owner
+    [[eosio::action]] void withdraw(name to, asset withdrawlAmount) { 
+        require_auth(to);
         accounts_index accounts(_self, _code.value);
 
-        auto itr = accounts.find(from.value);
+        auto itr = accounts.find(to.value);
         eosio_assert(itr != accounts.end(), "account not found");
 
+        // sanity checks on the withdrawl
         eosio_assert(withdrawlAmount.symbol == hub_symbol, "withdrawlAmount has incorrect symbol");
         eosio_assert(withdrawlAmount.is_valid(), "withdrawlAmount is not valid");
         eosio_assert(withdrawlAmount.amount > 0, "withdrawlAmount must be positive");
+
+        // finally check that we have the funds available to withdraw
+        eosio_assert(withdrawlAmount.amount <= itr->balance.amount, "insufficient unstaked funds");                
+
+        // use inline action to send withdrawlAmount via the eosio.token contract
+        action{
+            permission_level{_self, name("active")},
+            name("eosio.token"),
+            name("transfer"),
+            std::tuple<name, name, asset, std::string>{name("eoshub"), to, withdrawlAmount, "withdrawl from eoshub"}
+        }.send();
+
+        // modified the stored balance on our ledger
+        accounts.modify(itr, to, [&](auto &a) {
+            a.balance -= withdrawlAmount;
+        });
 
     }
 
@@ -124,6 +143,8 @@ class [[eosio::contract]] eoshub : public eosio::contract {
             a.balance += quantity;
         });
     }
+
+
 };
 
 // Custom Dispatcher to handle deposit notifications into the token contract
