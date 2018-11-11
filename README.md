@@ -7,6 +7,11 @@ EOS Hub allows dApp developers to enter a new era of decentralized collaborative
 The SaaS market is estimated to reach $200B while the API economy as a whole is estimated reaching $2.2T in the coming two years. 
 EOS hub multiplies efficiency and value by providing developers the opportunity to work **together** instead of against each other. With EOS hub developers can now keep a stake in the game instead of having their work enrich shareholders while the rest of the IT economy struggles with the same old competitive model based on spending.
 
+## What's this fork?
+
+This repo contains only the front end that u/xnastasia has worked on independently
+
+
 ## Smart contract
 
 The smart contract can be found at `eosio_docker/contracts/eoshub/eoshub.cpp` .
