@@ -13,7 +13,7 @@ class services extends Component {
   constructor() {
     super();
     this.state = {
-      iniRequests: 50000,
+      iniRequests: 120000,
       requests: 50000
     };
     this.setRequestsPerMinute = this.setRequestsPerMinute.bind(this);
@@ -53,7 +53,7 @@ class services extends Component {
             <Slider
               min={1000}
               max={200000}
-              defaultValue={this.state.iniRequests}
+              defaultValue={this.state.iniRequests * Math.random()}
               handle={this.handle}
             />
           </div>
