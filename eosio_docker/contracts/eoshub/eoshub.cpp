@@ -37,18 +37,11 @@ class [[eosio::contract]] eoshub : public eosio::contract {
   public:
     using contract::contract;
 
-
-    [[eosio::action]] void regservice(name owner, std::string description, std::string url) {
-
-    }
-
-    [[eosio::action]] void stake() {
-
-    }
+    [[eosio::action]] void regservice(name owner, std::string description, std::string url) {}
+    [[eosio::action]] void stake() {}
     [[eosio::action]] void unstake() {}
     [[eosio::action]] void delegate() {}
     [[eosio::action]] void undelegate() {}
-
     [[eosio::action]] void collectreward(name user) { }
 
 };

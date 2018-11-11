@@ -48,6 +48,7 @@ cleos wallet import -n notechainwal --private-key 5JD9AGTuTeD5BXZwGQ5AtwBqHK21aH
 
 # create account for notechainacc with above wallet's public keys
 cleos create account eosio notechainacc EOS6PUh9rs7eddJNzqgqDx1QrspSHLRxLMcRdwHZZRL4tpbtvia5B EOS8BCgapgYA2L4LJfCzekzeSr3rzgSTUXRXwNi8bNRoz31D14en9
+cleos create account eosio eosio.token  EOS6PUh9rs7eddJNzqgqDx1QrspSHLRxLMcRdwHZZRL4tpbtvia5B EOS8BCgapgYA2L4LJfCzekzeSr3rzgSTUXRXwNi8bNRoz31D14en9
 
 # * Replace "notechainacc" by your own account name when you start your own project
 
@@ -57,10 +58,16 @@ echo "=== deploy smart contract ==="
 # $3 wallet for unlock the account
 # $4 password for unlocking the wallet
 deploy_contract.sh notechain notechainacc notechainwal $(cat notechain_wallet_password.txt)
+echo "[[[ 2 ]]]=== deploy smart contract ==="
+deploy_contract.sh eosio.token eosio.token notechainwal $(cat notechain_wallet_password.txt)
 
 echo "=== create user accounts ==="
 # script for create data into blockchain
 create_accounts.sh
+
+echo "=== create token EOSHUB and issue it ==="
+# script for create data into blockchain
+createAndIssueEOSHUB.sh
 
 # * Replace the script with different form of data that you would pushed into the blockchain when you start your own project
 
