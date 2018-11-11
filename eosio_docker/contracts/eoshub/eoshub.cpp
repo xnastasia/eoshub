@@ -23,9 +23,8 @@ struct [[eosio::table]] account {
 
     asset balance;
     asset staked_balance;
-    asset registered_balance;
 
-    uint64_t last_collected_block;
+    uint64_t last_collection_time;
 
     auto primary_key() { return owner.value; }
 };
@@ -54,8 +53,12 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     [[eosio::action]] void stake(name owner, asset stakeAmount) {
         require_auth(owner);
 
-        auto itr = accounts_index.find(owner.value);
-        
+        accounts_index accounts(_self, _code.value);
+        auto itr = accounts.find(owner.value);
+
+        eosio_assert(itr != accounts.end(), "account not found");
+        eosio_assert(stakeAmount.symbol == itr->balance.symbol, "incorrect symbol");
+        eosio_assert(stakeAmount.amount <= itr->balance.amount, "insufficient funds");        
     }
 
     // unstake unstakes balances allowing them to be withdrawn from the contract
@@ -79,13 +82,47 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     }
 
     // withdraw withdraws an amount of eoshub (from the unstaked balance) to a given account
-    [[eosio::action]] void withdraw(name user) { 
+    [[eosio::action]] void withdraw(name from, asset withdrawlAmount) { 
+        require_auth(from);
+        accounts_index accounts(_self, _code.value);
+
+        auto itr = accounts.find(from.value);
+        eosio_assert(itr != accounts.end(), "account not found");
+
+        eosio_assert(withdrawlAmount.symbol == hub_symbol, "withdrawlAmount has incorrect symbol");
+        eosio_assert(withdrawlAmount.is_valid(), "withdrawlAmount is not valid");
+        eosio_assert(withdrawlAmount.amount > 0, "withdrawlAmount must be positive");
 
     }
 
     // depositinf notification _from_ the eoshub.token contract
     [[eosio::action]] void depositinf( name from, name to, asset quantity, std::string memo ) {
+        if(from == _self || to != _self)
+            return;
 
+        eosio_assert(quantity.symbol == hub_symbol, "incorrect symbol");
+        eosio_assert(quantity.is_valid(), "quantity is not valid");
+        eosio_assert(quantity.amount > 0, "amount must be positive");
+
+        accounts_index accounts(_self, _code.value);
+        auto itr = accounts.find(from.value);
+
+        // We don't currently have an account for this user, lets start one
+        if (itr == accounts.end()) {
+            accounts.emplace(from, [&](auto &a) {
+                a.owner = from;
+                a.balance = quantity;
+                a.staked_balance = asset(0, hub_symbol);
+                a.last_collection_time = now();
+            });
+            return;
+        }
+
+        // This account does exist, lets add its balance to our records
+        eosio_assert(itr != accounts.end(), "account doesn't exist");
+        accounts.modify(itr, from, [&](auto &a){
+            a.balance += quantity
+        });
     }
 };
 
