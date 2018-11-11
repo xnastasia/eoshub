@@ -1,4 +1,5 @@
 #include <eosiolib/eosio.hpp>
+#include <eosiolib/asset.hpp>
 
 using namespace eosio;
 
@@ -8,6 +9,7 @@ using namespace eosio;
 
 
 struct [[eosio::table]] service {
+    uint64_t key;
     // who registered this service?
     name owner;
 
@@ -15,13 +17,19 @@ struct [[eosio::table]] service {
     std::string description;
     std::string url;
 
-    auto primary_key() { return owner.value; }
+    auto primary_key() { return key; }
 };
 
-// struct [[eosio::table]] account {
+struct [[eosio::table]] account {
+    name owner;
 
+    asset balance;
 
-// };
+    asset staked;
+    asset delegated;
+
+    uint64_t lastCollectedBlock;
+};
 
 
 class [[eosio::contract]] eoshub : public eosio::contract {
@@ -30,7 +38,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     using contract::contract;
 
 
-    [[eosio::action]] void regservice(name owner, std::string description, std::string url) { 
+    [[eosio::action]] void regservice(name owner, std::string description, std::string url) {
 
     }
 
