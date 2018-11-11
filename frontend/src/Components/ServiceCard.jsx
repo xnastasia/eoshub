@@ -9,21 +9,6 @@ const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
 const Handle = Slider.Handle;
 
-// const handle = props => {
-//   const { value, dragging, index, ...restProps } = props;
-//   return (
-//     <Tooltip
-//       prefixCls="rc-slider-tooltip"
-//       overlay={value}
-//       visible={dragging}
-//       placement="top"
-//       key={index}
-//     >
-//       <Handle value={value} {...restProps} />
-//     </Tooltip>
-//   );
-// };
-
 class services extends Component {
   constructor() {
     super();
@@ -59,12 +44,10 @@ class services extends Component {
   render() {
     return (
       <div class="card">
-        <img class="card-img-top" src={img} alt="Elastic Service" />
+        <img class="card-img-top" src={this.props.img} alt="Elastic Service" />
         <div class="card-body">
-          <h5 class="card-title">Elastic dApp</h5>
-          <p class="card-text">
-            dApp leveraging Elastic Search to provide a seach engine for decentralized applications
-          </p>
+          <h5 class="card-title">{this.props.title}</h5>
+          <p class="card-text">{this.props.desc} </p>
           <div class="slider">
             <p>Requests per Month: {this.state.requests}</p>
             <Slider

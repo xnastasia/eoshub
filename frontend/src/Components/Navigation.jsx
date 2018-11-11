@@ -14,10 +14,10 @@ class Navigation extends Component {
           <nav>
             <input type="text" placeholder="Search Services" />
             <span>
-              <Link to="/developers">developers</Link>
+              <Link to="/services">Services</Link>
             </span>
             <span>
-              <Link to="/enterprise">enterprise</Link>
+              <Link to="/developers">Developers</Link>
             </span>
           </nav>
         </div>
