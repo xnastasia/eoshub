@@ -7,42 +7,44 @@ using namespace eosio;
 const symbol hub_symbol = symbol("EOSHUB", 4);
 const name hub_name = name("eoshub");
 
-struct [[eosio::table]] service {
-    name owner;
-
-    std::string name;
-    std::string description;
-    std::string url;
-
-    auto primary_key() const { return owner.value; }
-};
-
-typedef eosio::multi_index<name("services"), service> services_index;
-
-struct [[eosio::table]] account {
-    name owner;
-
-    asset balance;
-    asset staked_balance;
-
-    uint64_t last_collection_time;
-
-    auto primary_key() const { return owner.value; }
-};
-
-typedef eosio::multi_index<name("accounts"), account> accounts_index;
 
 
 class [[eosio::contract]] eoshub : public eosio::contract {
+    private:            
+    struct [[eosio::table("services")]] service {
+        name owner;
 
-  public:
+        std::string name;
+        std::string description;
+        std::string url;
+
+        auto primary_key() const { return owner.value; }
+    };
+
+    typedef eosio::multi_index<name("services"), service> services_index;
+
+    struct [[eosio::table("accounts")]] account {
+        name owner;
+
+        asset balance;
+        asset staked_balance;
+
+        uint64_t last_collection_time;
+
+        auto primary_key() const { return owner.value; }
+    };
+
+    typedef eosio::multi_index<name("accounts"), account> accounts_index;
+
+
+    public:
     using contract::contract;
 
     // regservice registers an eosaccount service listing (metadata about the service etc)
     [[eosio::action]] void regservice(name owner, std::string description, std::string url) {
         require_auth(owner);
 
-        services_index services(_self, _code.value);
+        services_index services(_self, _self.value);
         services.emplace(owner, [&]( auto& svc ) {
             svc.owner = owner;
             svc.description = description;
@@ -54,7 +56,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     [[eosio::action]] void stake(name owner, asset stakeAmount) {
         require_auth(owner);
 
-        accounts_index accounts(_self, _code.value);
+        accounts_index accounts(_self,  _self.value);
         auto itr = accounts.find(owner.value);
 
         eosio_assert(itr != accounts.end(), "account not found");
@@ -86,7 +88,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     // cleos set account permission eoshub active '{"threshold": 1,"keys": [{"key": "ACTIVE PUBKEY","weight": 1}],"accounts": [{"permission":{"actor":"eoshub","permission":"eosio.code"},"weight":1}]}' owner -p eoshub@owner
     [[eosio::action]] void withdraw(name to, asset withdrawlAmount) { 
         require_auth(to);
-        accounts_index accounts(_self, _code.value);
+        accounts_index accounts(_self,  _self.value);
 
         auto itr = accounts.find(to.value);
         eosio_assert(itr != accounts.end(), "account not found");
@@ -123,12 +125,12 @@ class [[eosio::contract]] eoshub : public eosio::contract {
         eosio_assert(quantity.is_valid(), "quantity is not valid");
         eosio_assert(quantity.amount > 0, "amount must be positive");
 
-        accounts_index accounts(_self, _code.value);
+        accounts_index accounts(_self, _self.value);
         auto itr = accounts.find(from.value);
 
         // We don't currently have an account for this user, lets start one
         if (itr == accounts.end()) {
-            accounts.emplace(from, [&](auto &a) {
+            accounts.emplace(_self, [&](auto &a) {
                 a.owner = from;
                 a.balance = quantity;
                 a.staked_balance = asset(0, hub_symbol);
@@ -139,7 +141,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
         // This account does exist, lets add its balance to our records
         eosio_assert(itr != accounts.end(), "account doesn't exist");
-        accounts.modify(itr, from, [&](auto &a){
+        accounts.modify(itr, _self, [&](auto &a){
             a.balance += quantity;
         });
     }
