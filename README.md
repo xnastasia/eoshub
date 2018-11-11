@@ -19,7 +19,7 @@ Functionalities:
 
 # Use
 
-Can install API with one line of code:
+After making an account and paying for service subscriptions, developers can install the API of their choice with one line of code:
 
 ```sh
 eoshub install eoshub.co/company/bestapiever.something
