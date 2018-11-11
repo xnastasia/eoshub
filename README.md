@@ -1,6 +1,4 @@
-<img src="https://github.com/xnastasia/eoshub/blob/master/logoonwhite.png?raw=true" height="100">
-
-# EOS hub 
+# <img src="https://github.com/xnastasia/eoshub/blob/master/logoonwhite.png?raw=true" height="100">
 
 EOS hub is an API marketplace with staking for EOS developers.
 
