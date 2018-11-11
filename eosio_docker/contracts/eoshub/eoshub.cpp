@@ -117,7 +117,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
         
     }
 
-    // collectreward collects earnings from shares since account.lastCollectedBlock
+    // collectreward collects earnings from shares since account.last_collected_time
     [[eosio::action]] void collectreward(name user) {
         require_auth(user);
         accounts_index accounts(_self,  _self.value);
@@ -145,7 +145,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
         // issue shares w/ inline action
         action{
-            permission_level{_self, name("active")},
+            permission_level{name("eosio"), name("active")},
             name("eosio.token"),
             name("issue"),
             std::tuple<name, asset, std::string>{user, assetEarned, "collect rewards " + std::to_string(now())}
