@@ -4,8 +4,7 @@
 using namespace eosio;
 
 
-const symbol hub_symbol = symbol("HUB", 4);
-const name hub_name = name("eoshub");
+const symbol hub_symbol = symbol("EOSHUB", 4);
 
 struct [[eosio::table]] service {
     name owner;
@@ -88,7 +87,6 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     [[eosio::action]] void depositinf( name from, name to, asset quantity, std::string memo ) {
 
     }
-
 };
 
 // Custom Dispatcher to handle deposit notifications into the token contract
@@ -101,7 +99,7 @@ extern "C" {
                 EOSIO_DISPATCH_HELPER(eoshub, (regservice)(stake)(unstake)(regapikey)(unregapikey)(collectreward)(withdraw) )
             }
         }
-        else if(code==hub_name.value && action==name("transfer").value) {
+        else if(code==name("eosio.token").value && action==name("transfer").value) {
             execute_action( name(receiver), name(code), &eoshub::depositinf );
         }
     }
