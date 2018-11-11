@@ -68,7 +68,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
     // withdraw withdraws an amount of eoshub (from the unstaked balance) to a given account
     [[eosio::action]] void withdraw(name user) { 
-        
+
     }
 
     // transfer notification _from_ the eoshub.token contract
@@ -78,4 +78,4 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
 };
 
-EOSIO_DISPATCH(eoshub, (regservice)(stake)(unstake)(regapikey)(unregapikey)(collectreward) )
+EOSIO_DISPATCH(eoshub, (regservice)(stake)(unstake)(regapikey)(unregapikey)(collectreward)(withdraw)(transfer) )
