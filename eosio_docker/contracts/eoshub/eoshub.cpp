@@ -61,7 +61,12 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
         eosio_assert(itr != accounts.end(), "account not found");
         eosio_assert(stakeAmount.symbol == itr->balance.symbol, "incorrect symbol");
-        eosio_assert(stakeAmount.amount <= itr->balance.amount, "insufficient funds");        
+        eosio_assert(stakeAmount.amount <= itr->balance.amount, "insufficient funds");
+
+        accounts.modify(itr, _self, [&](auto &a) {
+            a.balance -= stakeAmount;
+            a.staked_balance += stakeAmount;
+        });
     }
 
     // unstake unstakes balances allowing them to be withdrawn from the contract
