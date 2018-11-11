@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Index from './pages/index';
+// import Index from './pages/index';
+import AppRouter from './Components/AppRouter';
 
-ReactDOM.render(<Index />, document.getElementById('root'));
+ReactDOM.render(<AppRouter />, document.getElementById('root'));

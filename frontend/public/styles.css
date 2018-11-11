@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto';
+}
+
+.navigation {
+  width: 100%;
+  height: 88px;
+  background-color: black;
+  position: relative;
+}
+
+.navigation img {
+  height: 50px;
+  padding-top: 20px;
+  float: left;
+}
+
+.navigation .menu {
+  padding-top: 30px;
+  font-size: 18px;
+}
+
+.navigation .menu a {
+  color: white;
+  text-decoration: none;
+  margin: 10px;
+}
+
+.navigation .menu input {
+  border-radius: 15px;
+  background-color: #cecdcd;
+  border: solid 1px;
+  height: 25px;
+  margin: 0 20px;
+  width: 300px;
+  padding: 0 20px;
+}
+
+.services img {
+  position: relative;
+  width: 98%;
+  margin: 1%;
+}
