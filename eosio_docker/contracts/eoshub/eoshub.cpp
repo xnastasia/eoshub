@@ -20,7 +20,6 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
         auto primary_key() const { return owner.value; }
     };
-
     typedef eosio::multi_index<name("services"), service> services_index;
 
     struct [[eosio::table("accounts")]] account {
@@ -33,7 +32,6 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
         auto primary_key() const { return owner.value; }
     };
-
     typedef eosio::multi_index<name("accounts"), account> accounts_index;
 
 
@@ -61,6 +59,8 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
         eosio_assert(itr != accounts.end(), "account not found");
         eosio_assert(stakeAmount.symbol == itr->balance.symbol, "incorrect symbol");
+        eosio_assert(stakeAmount.is_valid(), "stakeAmount is not valid");
+        eosio_assert(stakeAmount.amount > 0 , "stakeAmount must be positive");        
         eosio_assert(stakeAmount.amount <= itr->balance.amount, "insufficient funds");
 
         accounts.modify(itr, _self, [&](auto &a) {
@@ -70,8 +70,25 @@ class [[eosio::contract]] eoshub : public eosio::contract {
     }
 
     // unstake unstakes balances allowing them to be withdrawn from the contract
-    [[eosio::action]] void unstake() {
-        //todo: timeout 1 month
+    [[eosio::action]] void unstake(name owner, asset unstakeAmount) {
+        require_auth(owner);
+
+        accounts_index accounts(_self,  _self.value);
+        auto itr = accounts.find(owner.value);
+
+        eosio_assert(itr != accounts.end(), "account not found");
+
+        eosio_assert(unstakeAmount.symbol == itr->staked_balance.symbol, "incorrect symbol");
+        eosio_assert(unstakeAmount.is_valid(), "unstakeAmount is not valid");
+        eosio_assert(unstakeAmount.amount > 0 , "unstakeAmount must be positive");
+        eosio_assert(unstakeAmount.amount <= itr->staked_balance.amount, "insufficient funds");
+
+        //todo: force 1 month timeout
+
+        accounts.modify(itr, _self, [&](auto &a) {
+            a.balance += unstakeAmount;
+            a.staked_balance -= unstakeAmount;
+        });
     }
 
     // regapikey stakes a certain amount of eoshub with the service tied to an EOS public key
