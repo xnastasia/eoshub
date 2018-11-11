@@ -6,7 +6,8 @@ using namespace eosio;
 // inflation_rate
 // how much do we inflate the base supply to pay for services?
 // uint64_t inflation_rate = 1;
-
+const symbol hub_symbol = symbol("HUB", 4);
+const name hub_name = name("eoshub");
 
 struct [[eosio::table]] service {
     uint64_t key;
@@ -38,6 +39,7 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
     // regservice registers an eosaccount service listing (metadata about the service etc)
     [[eosio::action]] void regservice(name owner, std::string description, std::string url) {
+
 
     }
 
@@ -71,11 +73,28 @@ class [[eosio::contract]] eoshub : public eosio::contract {
 
     }
 
-    // transfer notification _from_ the eoshub.token contract
-    [[eosio::action]] void transfer( name from, name to, asset quantity, std::string memo ) {
+    // depositinf notification _from_ the eoshub.token contract
+    [[eosio::action]] void depositinf( name from, name to, asset quantity, std::string memo ) {
 
     }
 
 };
 
-EOSIO_DISPATCH(eoshub, (regservice)(stake)(unstake)(regapikey)(unregapikey)(collectreward)(withdraw)(transfer) )
+
+// Custom Dispatcher to handle deposit notifications into the token contract
+extern "C" {
+    void apply(uint64_t receiver, uint64_t code, uint64_t action) {
+        if(code==receiver)
+        {
+            switch(action)
+            {
+                EOSIO_DISPATCH_HELPER(eoshub, (regservice)(stake)(unstake)(regapikey)(unregapikey)(collectreward)(withdraw) )
+            }
+        }
+        else if(code==hub_name.value && action==name("transfer").value) {
+            execute_action( name(receiver), name(code), &eoshub::depositinf );
+        }
+    }
+};
+
+
